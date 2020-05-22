@@ -19,17 +19,5 @@
         "laminas/laminas-cache": "^2.9"
     },
     "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "hao/yes-php",
-                "version": "1.0",
-                "source": {
-                    "url": "https://github.com/quachvanhao2020/YesPHP.git",
-                    "type": "git",
-                    "reference": "master"
-                }
-            }
-        }
     ]
 }
