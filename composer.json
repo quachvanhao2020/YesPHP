@@ -16,7 +16,9 @@
         "laminas/laminas-stdlib": "^3.2",
         "laminas/laminas-http": "^2.11",
         "laminas/laminas-log": "^2.12",
-        "laminas/laminas-cache": "^2.9"
+        "laminas/laminas-cache": "^2.9",
+        "netresearch/jsonmapper": "^2.1",
+        "laminas/laminas-math": "^3.2"
     },
     "repositories": [
     ]
