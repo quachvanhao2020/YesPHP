@@ -1,0 +1,18 @@
+---
+    number: 1
+    string: string
+    'null': 'null'
+    boolean: false
+    entityArrow: YesPHP\Model\EntityNormal-1
+    entityArrows:
+    - YesPHP\Model\EntityNormal-1
+    - id: '1'
+      __class: YesPHP\Model\EntityNormal
+      prototype:
+        storage:
+        - id: id
+    - id: '2'
+      __class: YesPHP\Model\EntityNormal
+      prototype:
+        storage: []
+    

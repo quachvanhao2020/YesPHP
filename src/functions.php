@@ -1,5 +1,104 @@
 <?php
 
+function array_to_xml($array, &$xml) { 
+    
+    if($xml instanceof SimpleXMLElement){
+    
+        foreach($array as $key => $value) {               
+            if(is_array($value)) {            
+                if(!is_numeric($key)){
+                    $subnode = $xml->addChild($key);
+                    array_to_xml($value, $subnode);
+                } else {
+                    //$subnode = $xml->addChild($key);
+                    array_to_xml($value, $xml);
+                }
+            } else {
+                $xml->addChild($key, $value);
+            }
+        }
+
+    }    
+}
+
+function array_to_xml2($student_info, $xml_student_info) {
+    foreach($student_info as $key => $value) {
+        if(is_array($value)) {
+            if(!is_numeric($key)){
+                $subnode = $xml_student_info->addChild("$key");
+                array_to_xml($value, $subnode);
+            }
+            else{
+                $subnode = $xml_student_info->addChild("person");
+                array_to_xml($value, $subnode);
+            }
+        }
+        else { 
+            $xml_student_info->addChild("$key","$value");
+        }
+    }
+}
+
+function object2array($object) { return @json_decode(@json_encode($object),1); } 
+
+/**
+* @param SimpleXMLElement $xml
+* @return array
+*/
+function xmlToArray(SimpleXMLElement $xml): array
+{
+    $parser = function (SimpleXMLElement $xml, array $collection = []) use (&$parser) {
+        $nodes = $xml->children();
+        $attributes = $xml->attributes();
+
+        if (0 !== count($attributes)) {
+            foreach ($attributes as $attrName => $attrValue) {
+                $collection['attributes'][$attrName] = strval($attrValue);
+            }
+        }
+
+        if (0 === $nodes->count()) {
+            $collection['value'] = strval($xml);
+            return $collection;
+        }
+
+        foreach ($nodes as $nodeName => $nodeValue) {
+            if (count($nodeValue->xpath('../' . $nodeName)) < 2) {
+                $collection[$nodeName] = $parser($nodeValue);
+                continue;
+            }
+
+            $collection[$nodeName][] = $parser($nodeValue);
+        }
+
+        return $collection;
+    };
+
+    return [
+        $xml->getName() => $parser($xml)
+    ];
+}
+
+function array2xml($array, $tag) {
+
+    function ia2xml($array) {
+        $xml="";
+        foreach ($array as $key=>$value) {
+            if (is_array($value)) {
+                $xml.="<$key>".ia2xml($value)."</$key>";
+            } else {
+                $xml.="<$key>".$value."</$key>";
+            }
+        }
+        return $xml;
+    }
+
+    $string = "<$tag>".ia2xml($array)."</$tag>";
+
+    var_dump($string);
+
+    return simplexml_load_string($string);
+} 
 
 function is_writable_r($dir) {
     if (is_dir($dir)) {

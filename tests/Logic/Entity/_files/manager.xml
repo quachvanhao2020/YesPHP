@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+  <number>1</number>
+  <string>string</string>
+  <null>null</null>
+  <boolean>false</boolean>
+  <entityArrow>YesPHP\Model\EntityNormal-1</entityArrow>
+  <entityArrows>
+    <storage>YesPHP\Model\EntityNormal-1</storage>
+    <storage>
+      <id>1</id>
+      <prototype>
+        <storage>
+          <id>id</id>
+        </storage>
+      </prototype>
+    </storage>
+    <storage>
+      <id>2</id>
+      <prototype>
+        <storage/>
+      </prototype>
+    </storage>
+  </entityArrows>
+</root>
