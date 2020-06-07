@@ -1,7 +1,24 @@
 <?php
+
+use YesPHP\Logic\Entity\EntityHandler;
+use YesPHP\Model\Entity;
+
 require_once "vendor/autoload.php";
 
-libxml_use_internal_errors(true);
+$handler = new EntityHandler;
+
+$ej = [
+  "id" => 323,
+  "__info" => [
+    "class" => "YesPHP\Model\Entity",
+  ]
+];
+
+$entity = $handler->serialize($ej,new Entity());
+
+var_dump($entity);
+
+return;
 
 $myXMLData =
 "<?xml version='1.0' encoding='UTF-8'?>

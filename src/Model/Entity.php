@@ -1,25 +1,25 @@
 <?php
 namespace YesPHP\Model;
-
+use YesPHP\Model\EntityInfo;
 use JsonSerializable;
 
 class Entity implements JsonSerializable {
     
     const ID = "id";
-    const __CLASS = "__class";
+    const __INFO = "__info";
 
     public function jsonSerialize() {
         return [
             self::ID => $this->getId(),
-            self::__CLASS => get_class($this), 
+            self::__INFO => $this->get__info(), 
         ];
     }
     /**
      * 
      *
-     * @var string
+     * @var EntityInfo
      */
-    protected $class;
+    protected $__info;
 
     public function __construct($id = null)
     {
@@ -58,25 +58,25 @@ class Entity implements JsonSerializable {
     }
 
     /**
-     * Get the value of class
+     * Get the value of __info
      *
-     * @return  string
+     * @return  EntityInfo
      */ 
-    public function getClass()
+    public function get__info()
     {
-        return $this->class;
+        return $this->__info;
     }
 
     /**
-     * Set the value of class
+     * Set the value of __info
      *
-     * @param  string  $class
+     * @param  EntityInfo  $__info
      *
      * @return  self
      */ 
-    public function setClass(string $class)
+    public function set__info(EntityInfo $__info)
     {
-        $this->class = $class;
+        $this->__info = $__info;
 
         return $this;
     }

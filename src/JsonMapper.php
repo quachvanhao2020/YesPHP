@@ -46,7 +46,7 @@ class JsonMapper extends BJsonMapper{
 
         if(is_array($json)){
 
-            var_dump($json,$object);
+            //var_dump($json,$object);
         }
 
         $result = parent::map($json,$object);

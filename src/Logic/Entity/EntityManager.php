@@ -15,7 +15,7 @@ use YesPHP\EventManager\Traits\EventManagerTrait;
 use YesPHP\EventManager\Traits\ListenerAggregateTrait;
 use YesPHP\Traits as YesTraits;
 use YesPHP\Aware\CanInterface;
-use YesPHP\StorageAvanceInterface;
+use YesPHP\Cache\StorageInterface;
 use YesPHP\Model\EntityArrow;
 
 
@@ -29,10 +29,7 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
     const EVENT_GET_ITEM = "even_get_item";
     const EVENT_SET_ITEM = "even_set_item";
     const EVENT_ADD_ITEM = "even_add_item";
-
-
     const NOT_ACTIVE = "not_active";
-
     const CONFIG = "config";
     const MANAGER = "manager";
     const STORAGE = "storage";
@@ -56,9 +53,14 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
     protected $manager;
 
      /**
-     * @var StorageAvanceInterface
+     * @var StorageInterface
      */
     protected $storage;
+
+         /**
+     * @var EntityHandler
+     */
+    protected $entityHandler;
 
     public function __debugInfo() {
         return [
@@ -66,21 +68,10 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
         ];
     }
 
-    public function __construct(StorageAvanceInterface $storage)
+    public function __construct(StorageInterface $storage,EntityHandler $entityHandler)
     {
-        $this->storage = $storage;
-    }
-
-    public function attach(EventManagerInterface $events,$priority = 1)
-    {
-        $this->listeners[] = $events->attach('*', [$this, 'log']);
-    }
-
-    public function log(EventInterface $e)
-    {
-        $event  = $e->getName();
-        $params = $e->getParams();
-        //$this->log->info(sprintf('%s: %s', $event, json_encode($params)));
+        $this->setStorage($storage);
+        $this->setEntityHandler($entityHandler);
     }
 
     public function getActiveEntitys(){
@@ -102,88 +93,6 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
     }
 
     public function doingRefObjectSerialize(&$object,$key,&$value){}
-
-        /**
-     * Test if an item exists.
-     *
-     * @param  string $key
-     * @return bool
-     * @throws \Laminas\Cache\Exception\ExceptionInterface
-     */
-    public function hasItem($key){
-
-        return $this->getStorage()->getIndexStorage()->hasItem($key);
-
-    }
-
-
-        /**
-     * Set the value of activeProduct
-     * @param 
-     * @return EntityHelperModel[]
-     */
-    public function getEntityHelperModels(){
-
-        $items = $this->getActiveEntitys();
-
-        foreach ($items as $key => $value) {
-
-            $items[$key] = $this->getItemHelper($value);
-
-        }
-
-        return $items;
-
-    }
-
-            /**
-     * Set the value of activeProduct
-     * @param string $id
-     * @return StatisticalModel
-     */
-    public function getItemStatistical($id = "0"){
-
-        $statistical = $this->getStorage()->getStatisticalStorage();
-
-        $type = $this->getTypeProductStatistical();
-        
-        $object = $statistical->getItem($id);
-
-        if(is_object($object)){
-
-            $object = $this->refObjectSerialize($object);
-
-        };
-
-        $object = $statistical->makeInstance($type,$object);
-
-        $this->getEventManager()->trigger(self::EVENT_GET_ITEM, $this, [$object]);
-
-        return $object;
-
-    }
-
-    public function getItemHelper($id){
-
-        $helperStorage = $this->getStorage()->getHelperStorage();
-
-        $type = $this->getTypeProductHelper();
-        
-        $object = $helperStorage->getItem($id);
-
-        if(is_object($object)){
-
-            $object = $this->refObjectSerialize($object);
-
-        };
-
-        $object = $helperStorage->makeInstance($type,$object);
-
-        $this->getEventManager()->trigger(self::EVENT_GET_ITEM, $this, [$object]);
-
-        return $object;
-
-    }
 
     /**
      * Set the value of activeProduct
@@ -278,7 +187,7 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
 
         }
 
-        $itemStd = Manager::refObjectUnSerialize(json_decode(json_encode($item)),$this->getManager());
+        $itemStd = $this->getManager()->refObjectUnSerialize(json_decode(json_encode($item)),$this->getManager());
 
         if($this->getStorage()->getIndexStorage()->addItem($id,json_encode($itemStd,JSON_PRETTY_PRINT))){
     
@@ -290,26 +199,6 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
 
         return false;
 
-    }
-
-    /**
-     * Get the value of storage
-     */ 
-    public function getStorage()
-    {
-        return $this->storage;
-    }
-
-    /**
-     * Set the value of storage
-     *
-     * @return  self
-     */ 
-    public function setStorage(StorageAvanceInterface $storage)
-    {
-        $this->storage = $storage;
-
-        return $this;
     }
 
     /**
@@ -358,6 +247,54 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
     public function setCan(CanInterface $can)
     {
         $this->can = $can;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of entityHandler
+     *
+     * @return  EntityHandler
+     */ 
+    public function getEntityHandler()
+    {
+        return $this->entityHandler;
+    }
+
+    /**
+     * Set the value of entityHandler
+     *
+     * @param  EntityHandler  $entityHandler
+     *
+     * @return  self
+     */ 
+    public function setEntityHandler(EntityHandler $entityHandler)
+    {
+        $this->entityHandler = $entityHandler;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of storage
+     *
+     * @return  StorageInterface
+     */ 
+    public function getStorage()
+    {
+        return $this->storage;
+    }
+
+    /**
+     * Set the value of storage
+     *
+     * @param  StorageInterface  $storage
+     *
+     * @return  self
+     */ 
+    public function setStorage(StorageInterface $storage)
+    {
+        $this->storage = $storage;
 
         return $this;
     }

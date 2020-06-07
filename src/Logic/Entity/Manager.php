@@ -1,5 +1,6 @@
 <?php
 namespace YesPHP\Logic\Entity;
+
 use Interop\Container\ContainerInterface;
 use YesPHP\Cache\JsonCacheStorage;
 use YesPHP\Cache\StorageInterface;
@@ -8,6 +9,7 @@ use YesPHP\EventManager\Traits\EventManagerTrait;
 use function YesPHP\runPhpString;
 use YesPHP\Model\Storage\RefEntityStorage;
 use YesPHP\Traits;
+use YesPHP\Logic\Entity\Storage\EntityManagerStorage;
 
 class Manager{
 
@@ -15,9 +17,9 @@ class Manager{
     use Traits\Log;
 
     /**
-     * @var EntityManager[]
+     * @var EntityManagerStorage
      */
-    protected $maps;
+    protected $ems;
 
 
     /**
@@ -30,24 +32,11 @@ class Manager{
      */
     protected $container;
 
-    public static function getDir(){
-
-        return __DIR__;
-
-    }
-
-    public function __construct($maps = [],ContainerInterface $container = null)
+    public function __construct(EntityManagerStorage $ems ,ContainerInterface $container = null)
     {
-        $this->setMaps($maps);
+        $this->setEms($ems);
         $this->setContainer($container);
         $this->setRefs(new RefEntityStorage());
-    }
-
-    public function __debugInfo() {
-        return [
-            'maps' => $this->maps,
-            "events" => $this->getEventManager(),
-        ];
     }
 
     public static function avalidRefEntity(RefEntity $refEntity){
@@ -122,11 +111,11 @@ class Manager{
             
             if(is_array($value)){
 
-                $value = self::refObjectSerialize($value,$callable);
+                $value = $this->refObjectSerialize($value,$callable);
 
             }else if(is_object($value) && get_class($value) == \stdClass::class){
 
-                $value = self::refObjectSerialize($value,$callable);
+                $value = $this->refObjectSerialize($value,$callable);
 
             };
 
@@ -154,13 +143,13 @@ class Manager{
 
             $object = $refs->offsetGet((string)$ref);
 
-            $this->getLog()->info(sprintf('%s:%s:%s', __METHOD__,"cache",tryToString($object)));
+            $this->getLog()->info(sprintf('%s:%s:%s', __METHOD__,"cache",(string)($object)));
 
             return $object;
 
         }
 
-        $manager = $this->findManager($ref->getClass());
+        $manager = $this->findEntityManager($ref->getClass());
 
         if($manager){
 
@@ -177,13 +166,13 @@ class Manager{
 
                 $object = $manager->getItemHelper($ref->getId());
 
-                $this->getLog()->info(sprintf('%s:%s:%s',__METHOD__,"helper",tryToString($object)));
+                $this->getLog()->info(sprintf('%s:%s:%s',__METHOD__,"helper",(string)($object)));
 
             }
 
             $object = $manager->getItem($ref->getId());
 
-            $this->getLog()->info(sprintf('%s:%s:%s',__METHOD__,"manager",tryToString($object)));
+            $this->getLog()->info(sprintf('%s:%s:%s',__METHOD__,"manager",(string)($object)));
 
             return $object;
         
@@ -191,13 +180,13 @@ class Manager{
 
     }
 
-    public function findManager($class){
+    public function findEntityManager($class){
 
-        $maps = $this->getMaps();
+        $ems = $this->getEms();
 
-        if(isset($maps[$class])) return $maps[$class];
+        if(isset($ems[$class])) return $ems[$class];
 
-        foreach ($maps as $key => $manager) {
+        foreach ($ems as $key => $manager) {
 
             if(is_string($manager)){
 
@@ -209,7 +198,7 @@ class Manager{
 
                 if($class == $manager->getTypeProduct()){
 
-                    $this->maps[$class] = $manager;
+                    $this->ems[$class] = $manager;
 
                     return $manager;
 
@@ -218,46 +207,6 @@ class Manager{
             
         }
 
-    }
-
-    /**
-     * Get the value of maps
-     */ 
-    public function getMaps()
-    {
-        return $this->maps;
-    }
-
-    /**
-     * Set the value of maps
-     *
-     * @return  self
-     */ 
-    public function setMaps($maps)
-    {
-        $this->maps = $maps;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of container
-     */ 
-    public function getContainer()
-    {
-        return $this->container;
-    }
-
-    /**
-     * Set the value of container
-     *
-     * @return  self
-     */ 
-    public function setContainer($container)
-    {
-        $this->container = $container;
-
-        return $this;
     }
 
     /**
@@ -282,5 +231,66 @@ class Manager{
         $this->refs = $refs;
 
         return $this;
+    }
+
+    /**
+     * Get the value of ems
+     *
+     * @return  EntityManagerStorage
+     */ 
+    public function getEms()
+    {
+        return $this->ems;
+    }
+
+    /**
+     * Set the value of ems
+     *
+     * @param  EntityManagerStorage  $ems
+     *
+     * @return  self
+     */ 
+    public function setEms(EntityManagerStorage $ems)
+    {
+        $this->ems = $ems;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of container
+     *
+     * @return  ContainerInterface
+     */ 
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
+     * Set the value of container
+     *
+     * @param  ContainerInterface  $container
+     *
+     * @return  self
+     */ 
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+
+        return $this;
+    }
+
+    public static function getDir(){
+
+        return __DIR__;
+
+    }
+
+    public function __debugInfo() {
+        return [
+            'maps' => $this->maps,
+            "events" => $this->getEventManager(),
+        ];
     }
 }
