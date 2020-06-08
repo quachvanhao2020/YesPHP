@@ -6,20 +6,26 @@ use JsonSerializable;
 class Entity implements JsonSerializable {
     
     const ID = "id";
-    const __INFO = "__info";
+    const INFO = "info";
 
     public function jsonSerialize() {
         return [
             self::ID => $this->getId(),
-            self::__INFO => $this->get__info(), 
+            self::INFO=> $this->getInfo(), 
         ];
     }
-    /**
+
+    public static function propertySpecificity(){
+
+        return self::ID;
+    }
+
+        /**
      * 
      *
-     * @var EntityInfo
+     * @var \YesPHP\Model\EntityInfo
      */
-    protected $__info;
+    protected $info;
 
     public function __construct($id = null)
     {
@@ -58,25 +64,25 @@ class Entity implements JsonSerializable {
     }
 
     /**
-     * Get the value of __info
+     * Get the value of info
      *
-     * @return  EntityInfo
+     * @return  \YesPHP\Model\EntityInfo
      */ 
-    public function get__info()
+    public function getInfo()
     {
-        return $this->__info;
+        return $this->info;
     }
 
     /**
-     * Set the value of __info
+     * Set the value of info
      *
-     * @param  EntityInfo  $__info
+     * @param  \YesPHP\Model\EntityInfo  $info
      *
      * @return  self
      */ 
-    public function set__info(EntityInfo $__info)
+    public function setInfo(\YesPHP\Model\EntityInfo $info)
     {
-        $this->__info = $__info;
+        $this->info = $info;
 
         return $this;
     }

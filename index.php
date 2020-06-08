@@ -1,22 +1,56 @@
 <?php
 
+use YesPHP\Cache\SimpleStorage;
+use YesPHP\Can;
 use YesPHP\Logic\Entity\EntityHandler;
 use YesPHP\Model\Entity;
+use YesPHP\Model\EntityInfo;
+use YesPHP\Model\EntityNormal;
+use YesPHP\Dynamic;
+use YesPHP\Logic\Entity\EntityManager;
+use YesPHP\Model\EntityArrow;
+use YesPHP\Model\RefEntity;
+use YesPHP\Model\Storage\EntityArrowStorage;
 
 require_once "vendor/autoload.php";
 
 $handler = new EntityHandler;
+$infor = new EntityInfo;
+
+$entityManager = new EntityManager(new SimpleStorage,$handler);
+$entityManager->setCan(new Can());
 
 $ej = [
   "id" => 323,
-  "__info" => [
+  "ref" => 2,
+  "parent" => [
+    "id" => 33,
+    "info" => [
+    ],
+    "parent" => [
+      "id" => 44,
+    ]
+  ],
+  "info" => [
     "class" => "YesPHP\Model\Entity",
   ]
 ];
 
-$entity = $handler->serialize($ej,new Entity());
+$arrow = new EntityArrow("a");
 
-var_dump($entity);
+$entityManager->setItem($arrow,$ej);
+
+$arrow1 = new EntityArrow("a");
+
+$arrow1->setPrototype(new EntityArrowStorage([
+  new EntityArrow("parent"),
+]));
+
+$entityManager->setItem($arrow1,["id" => 55,]);
+
+//var_dump($entityManager);
+
+var_dump($entityManager->getItem($arrow1));
 
 return;
 

@@ -4,7 +4,8 @@ namespace YesPHP\Cache;
 use Laminas\Cache\Storage\StorageInterface as StorageStorageInterface;
 use YesPHP\Model\EntityArrow;
 
-interface StorageInterface extends StorageStorageInterface
+interface StorageInterface 
+//extends StorageStorageInterface
 {
 
         /**
@@ -17,5 +18,11 @@ interface StorageInterface extends StorageStorageInterface
      *
      */
     public function getItemByArrow(EntityArrow $arrow);
+
+            /**
+     * Get an item.
+     *
+     */
+    public function setItemByArrow(EntityArrow $arrow,$data = null);
 
 }

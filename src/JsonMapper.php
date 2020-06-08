@@ -3,6 +3,7 @@ namespace YesPHP;
 use JsonMapper as BJsonMapper;
 use stdClass;
 use YesPHP\Model\Entity;
+use YesPHP\Model\EntityInfo;
 use YesPHP\Model\EntityNormal;
 use YesPHP\Model\Storage\RefEntityStorage;
 use YesPHP\Model\RefEntity;
@@ -27,10 +28,16 @@ class JsonMapper extends BJsonMapper{
     public function map($json,$object)
     {
 
-        if(is_object($json) && ($class = get_class($json)) && $class !== stdClass::class){
+        if(is_object($json) && !$json instanceof stdClass){
 
             $object = $json;
 
+        }
+
+        if(is_array($json)){
+
+            $json = Dynamic::fromArray($json);
+            //var_dump($json,$object);
         }
 
         if($object instanceof Entity){
@@ -42,11 +49,6 @@ class JsonMapper extends BJsonMapper{
             }
 
             $this->writeRef($object);
-        }
-
-        if(is_array($json)){
-
-            //var_dump($json,$object);
         }
 
         $result = parent::map($json,$object);
@@ -79,7 +81,7 @@ class JsonMapper extends BJsonMapper{
 
         if($jvalue instanceof Entity){
 
-            $ref = RefEntity::entityIdTo($jvalue);
+            //$ref = RefEntity::entityIdTo($jvalue);
 
         }
 
@@ -130,12 +132,10 @@ class JsonMapper extends BJsonMapper{
     protected function setProperty(
         $object, $accessor, $value
     ) {
-        //if(is_array($value)) var_dump($value);
 
         $value = $this->handleJvalue($value);
 
         parent::setProperty($object,$accessor,$value);
-
     }
 
     public function getInstanceByObject($json,$arrayObject = []){
@@ -168,9 +168,11 @@ class JsonMapper extends BJsonMapper{
 
         $type = parent::getMappedType($type,$jvalue);
 
-        if(isset($jvalue->__class)){
+        if(isset($jvalue->info)){
 
-            $type = $jvalue->__class;
+            $info = EntityInfo::fromArray(Dynamic::toArrayStatic($jvalue->info));
+
+            if($info) $type = $info->getClass();
 
         }
 

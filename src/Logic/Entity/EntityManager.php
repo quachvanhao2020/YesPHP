@@ -2,22 +2,17 @@
 namespace YesPHP\Logic\Entity;
 
 use YesPHP\Model\Entity;
-use YesPHP\StorageAvance;
-use YesPHP\Model\EntityHelperModel;
-use Laminas\EventManager\EventInterface;
-use Laminas\EventManager\EventManagerInterface;
 use Laminas\EventManager\ListenerAggregateInterface;
 use Laminas\Math\Rand;
 use YesPHP\Exception\IException;
 use YesPHP\Model\RefEntity;
-use YesPHP\Model\StatisticalModel;
 use YesPHP\EventManager\Traits\EventManagerTrait;
 use YesPHP\EventManager\Traits\ListenerAggregateTrait;
 use YesPHP\Traits as YesTraits;
 use YesPHP\Aware\CanInterface;
 use YesPHP\Cache\StorageInterface;
 use YesPHP\Model\EntityArrow;
-
+use YesPHP\Model\EntityNormal;
 
 class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface {
 
@@ -31,8 +26,10 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
     const EVENT_ADD_ITEM = "even_add_item";
     const NOT_ACTIVE = "not_active";
     const CONFIG = "config";
+
     const MANAGER = "manager";
     const STORAGE = "storage";
+    const ENTITYHANDLER = "entity_handler";
 
     public static function makeId(){
 
@@ -64,7 +61,9 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
 
     public function __debugInfo() {
         return [
-            self::MANAGER => $this->getManager(),
+            //self::MANAGER => $this->getManager(),
+            self::STORAGE => $this->getStorage(),
+            //self::ENTITYHANDLER => $this->getEntityHandler(),
         ];
     }
 
@@ -94,13 +93,42 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
 
     public function doingRefObjectSerialize(&$object,$key,&$value){}
 
+
+        /**
+     * Set the value of activeProduct
+     * @param EntityArrow $arrow
+     * @return  Product
+     */ 
+    public function getItem(EntityArrow $arrow){
+
+        $id = $arrow->getId();
+
+        if(!$this->getCan()->canRead($id)) {
+
+            $this->getEventManager()->trigger(self::EVENT_GET_ITEM, $this, [new IException($id,self::NOT_ACTIVE)]);
+
+            //return;
+
+        };
+
+        $data = $this->getStorage()->getItemByArrow($arrow);
+
+        var_dump($data);
+
+        $type = $this->getTypeProduct();
+
+        $instance = new EntityNormal();
+
+        $entity = $this->getEntityHandler()->serialize($data,$instance,$type);
+
+        return $entity;
+    }
     /**
      * Set the value of activeProduct
      * @param string $id
      * @return  Product
      */ 
-
-    public function getItem(EntityArrow $arrow){
+    public function getItemm(EntityArrow $arrow){
 
         $id = $arrow->getId();
 
@@ -163,36 +191,10 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
 
     }
 
-    public function setItem($id,$item){
+    public function setItem(EntityArrow $arrow,$item){
 
-        $itemStd = json_decode(json_encode($item));
-
-        if($this->getStorage()->getIndexStorage()->setItem($id,json_encode($itemStd,JSON_PRETTY_PRINT))){
+        if($this->getStorage()->setItemByArrow($arrow,$item)){
     
-            $this->getEventManager()->trigger(self::EVENT_SET_ITEM, $this, [$item]);
-
-            return true;
-
-        }
-
-        return false;
-
-    }
-
-    public function addItem($id,$item){
-
-        if($this->hasItem($id)){
-
-            return;
-
-        }
-
-        $itemStd = $this->getManager()->refObjectUnSerialize(json_decode(json_encode($item)),$this->getManager());
-
-        if($this->getStorage()->getIndexStorage()->addItem($id,json_encode($itemStd,JSON_PRETTY_PRINT))){
-    
-            $this->getEventManager()->trigger(self::EVENT_ADD_ITEM, $this, [$item]);
-
             return true;
 
         }

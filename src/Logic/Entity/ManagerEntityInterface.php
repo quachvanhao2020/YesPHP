@@ -4,12 +4,25 @@ use YesPHP\Model\EntityArrow;
 
 interface ManagerEntityInterface{
 
+    /**
+     * 
+     * @param EntityArrow $arrow
+     * @return mixed
+     */ 
     public function getItem(EntityArrow $arrow);
 
+        /**
+     * 
+     * @param EntityArrow $arrow
+     * @param mixed $data
+     * @return mixed
+     */
     public function setItem(EntityArrow $arrow,$data);
 
-    public function addItem(EntityArrow $arrow,$data);
-
+    /**
+     * 
+     * 
+     * @return string
+     */
     public function getTypeProduct();
-
 }
