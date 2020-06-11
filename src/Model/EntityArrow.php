@@ -4,15 +4,31 @@ use YesPHP\Model\Storage\EntityArrowStorage;
 
 class EntityArrow extends Entity{
 
+    const PROTOTYPE = "prototype";
+    const VALUE = "value";
+
+    public static function propertySpecificity(){
+
+        return self::PROTOTYPE;
+    }
+
+    public function toArray()
+    {
+        return array_merge([
+            self::PROTOTYPE => $this->getPrototype(),
+        ],parent::toArray());
+    }
+
     /**
      * @var EntityArrowStorage
      */
     protected $prototype;
 
-    public function __construct($id = null)
-    {
-        parent::__construct($id);
-    }
+        /**
+     * @var mixed
+     */
+    protected $value;
+
     /**
      * Get the value of prototype
      *
@@ -33,6 +49,30 @@ class EntityArrow extends Entity{
     public function setPrototype(EntityArrowStorage $prototype)
     {
         $this->prototype = $prototype;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of value
+     *
+     * @return  mixed
+     */ 
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Set the value of value
+     *
+     * @param  mixed  $value
+     *
+     * @return  self
+     */ 
+    public function setValue($value)
+    {
+        $this->value = $value;
 
         return $this;
     }

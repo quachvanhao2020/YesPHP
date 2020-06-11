@@ -2,17 +2,45 @@
 namespace YesPHP\Model;
 use YesPHP\Model\EntityInfo;
 use JsonSerializable;
+use YesPHP\ArraySerializable;
+use YesPHP\Dynamic;
+use YesPHP\DynamicSerializable;
 
-class Entity implements JsonSerializable {
+class Entity implements JsonSerializable,ArraySerializable,DynamicSerializable 
+{
     
     const ID = "id";
     const INFO = "info";
 
-    public function jsonSerialize() {
-        return [
+    public function toArray(){
+        return array_merge([
             self::ID => $this->getId(),
-            self::INFO=> $this->getInfo(), 
-        ];
+            self::INFO => $this->getInfo(),
+        ],[]);
+    }
+
+    public function arrayTo(array $array){
+        $self = new static;
+        $self->setId($array["id"]);
+        $self->setInfo($array["info"]);
+        return $self;
+    }
+
+    public function toDynamic(){
+        $dynamic = new Dynamic;
+        $dynamic->id = $this->getId();
+        $dynamic->info = $this->getInfo();
+    }
+
+    public function dynamicTo(Dynamic $dynamic){
+        $self = new static;
+        $self->setId($dynamic->id);
+        $self->setInfo($dynamic->info);
+        return $self;
+    }
+
+    public function jsonSerialize() {
+        return $this->toArray();
     }
 
     public static function propertySpecificity(){
@@ -80,7 +108,7 @@ class Entity implements JsonSerializable {
      *
      * @return  self
      */ 
-    public function setInfo(\YesPHP\Model\EntityInfo $info)
+    public function setInfo(\YesPHP\Model\EntityInfo $info = null)
     {
         $this->info = $info;
 

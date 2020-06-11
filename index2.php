@@ -1,20 +1,18 @@
 <?php
-$dynamic                = new Dynamic();
-$dynamic->a=2;
-$dynamic->a->a=4;
-$dynamic->anotherMethod = function () {
-    echo "Hey there";
-};
-$dynamic->randomInt     = function ($min, $max) {
-    return mt_rand($min, $max); // random_int($min, $max); // <-- PHP7+
-};
 
+use YesPHP\Model\EntityArrow;
+use YesPHP\Model\EntityInfo;
 
+require_once "vendor/autoload.php";
 
-var_dump(
-    Dynamic::fromArray($ej),
-    $dynamic,
-    $dynamic->randomInt(1, 11)
-);
+$arrow1 = new EntityArrow(1);
+$arrow2 = new EntityArrow(2);
+$arrow2->setInfo((new EntityInfo)->setClass("222"));
+
+var_dump(objectToArray($arrow1,true),objectToArray($arrow2,true));
+
+$arrowTotal = $arrow1+$arrow2;
+
+var_dump($arrowTotal);
 
 return;

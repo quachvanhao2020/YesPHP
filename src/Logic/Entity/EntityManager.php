@@ -11,10 +11,12 @@ use YesPHP\EventManager\Traits\ListenerAggregateTrait;
 use YesPHP\Traits as YesTraits;
 use YesPHP\Aware\CanInterface;
 use YesPHP\Cache\StorageInterface;
+use YesPHP\Dynamic;
 use YesPHP\Model\EntityArrow;
 use YesPHP\Model\EntityNormal;
 
-class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface {
+class EntityManager implements //ManagerEntityInterface,
+ListenerAggregateInterface {
 
     use EventManagerTrait;
     use ListenerAggregateTrait;
@@ -73,31 +75,10 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
         $this->setEntityHandler($entityHandler);
     }
 
-    public function getActiveEntitys(){
-
-        $actives = [];
-
-        foreach ($this->getOptions() as $key => $value) {
-           
-            if($value){
-
-                $actives[] = $key;
-
-            }
-
-        }
-
-        return $actives;
-
-    }
-
-    public function doingRefObjectSerialize(&$object,$key,&$value){}
-
-
-        /**
-     * Set the value of activeProduct
+    /**
+     * 
      * @param EntityArrow $arrow
-     * @return  Product
+     * @return Entity
      */ 
     public function getItem(EntityArrow $arrow){
 
@@ -106,18 +87,13 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
         if(!$this->getCan()->canRead($id)) {
 
             $this->getEventManager()->trigger(self::EVENT_GET_ITEM, $this, [new IException($id,self::NOT_ACTIVE)]);
-
-            //return;
-
         };
 
         $data = $this->getStorage()->getItemByArrow($arrow);
 
-        var_dump($data);
-
         $type = $this->getTypeProduct();
 
-        $instance = new EntityNormal();
+        $instance = new $type();
 
         $entity = $this->getEntityHandler()->serialize($data,$instance,$type);
 
@@ -126,7 +102,7 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
     /**
      * Set the value of activeProduct
      * @param string $id
-     * @return  Product
+     * @return Entity
      */ 
     public function getItemm(EntityArrow $arrow){
 
@@ -169,29 +145,15 @@ class EntityManager implements ManagerEntityInterface,ListenerAggregateInterface
         return $object;
     }
 
-    public function refObjectSerialize($object){
-
-        $object = $this->getManager()->refObjectSerialize($object,[$this, 'doingRefObjectSerialize']);
-
-        return $object;
-
-    }
-
-    public function optimize($id){
-
-        $entity = null;
-
-        $itemStd = $this->getManager()->refObjectUnSerialize($entity,[
-            RefEntity::stdClassTo($entity),
-        ]);
-
-        if($itemStd !== null) $entity = $itemStd;
-
-        return $this->setItem($id,json_encode($entity,JSON_PRETTY_PRINT));
-
-    }
-
+    /**
+     * 
+     * @param string $arrow
+     * @param Entity $item
+     * @return bool
+     */ 
     public function setItem(EntityArrow $arrow,$item){
+
+        $item = Dynamic::fromEntity($item);
 
         if($this->getStorage()->setItemByArrow($arrow,$item)){
     

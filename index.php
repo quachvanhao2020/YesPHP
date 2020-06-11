@@ -11,14 +11,17 @@ use YesPHP\Logic\Entity\EntityManager;
 use YesPHP\Model\EntityArrow;
 use YesPHP\Model\RefEntity;
 use YesPHP\Model\Storage\EntityArrowStorage;
+use YesPHP\Logic\Entity\EntityNormalManager;
 
 require_once "vendor/autoload.php";
 
 $handler = new EntityHandler;
 $infor = new EntityInfo;
 
-$entityManager = new EntityManager(new SimpleStorage,$handler);
+$entityManager = new EntityNormalManager(new SimpleStorage,$handler);
 $entityManager->setCan(new Can());
+
+
 
 $ej = [
   "id" => 323,
@@ -36,6 +39,11 @@ $ej = [
   ]
 ];
 
+$ej = new EntityNormal(222);
+$ej->setRef(2);
+$ej->setParent(new EntityNormal(77));
+$ej->setInfo((new EntityInfo)->setClass("YesPHP\Model\Entity"));
+
 $arrow = new EntityArrow("a");
 
 $entityManager->setItem($arrow,$ej);
@@ -43,14 +51,20 @@ $entityManager->setItem($arrow,$ej);
 $arrow1 = new EntityArrow("a");
 
 $arrow1->setPrototype(new EntityArrowStorage([
-  new EntityArrow("parent"),
+  new EntityArrow("info"),
+  //new EntityArrow("parent"),
 ]));
 
-$entityManager->setItem($arrow1,["id" => 55,]);
+$parent = new EntityNormal(55);
+$parent->setInfo(new EntityInfo);
 
-//var_dump($entityManager);
+$entityManager->setItem($arrow1,$parent);
 
-var_dump($entityManager->getItem($arrow1));
+var_dump($entityManager);
+
+var_dump($entityManager->getItem($arrow));
+
+//var_dump($entityManager->getItem($arrow1));
 
 return;
 

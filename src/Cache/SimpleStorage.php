@@ -5,6 +5,7 @@ use YesPHP\ArrayObject;
 use YesPHP\Model\EntityArrow;
 use YesPHP\Cache\Iterator\SimpleStorageIterator;
 use YesPHP\Dynamic;
+use YesPHP\Model\Storage\EntityArrowStorage;
 
 class SimpleStorage extends ArrayObject implements StorageInterface{
 
@@ -12,6 +13,12 @@ class SimpleStorage extends ArrayObject implements StorageInterface{
      * @var mixed
      */
     protected $value;
+
+    /**
+     * @var EntityArrowStorage
+     */
+    protected $entityArrows;
+
             /**
      * Create a new iterator from an ArrayObject instance
      *
@@ -87,6 +94,26 @@ class SimpleStorage extends ArrayObject implements StorageInterface{
 
     }
 
+    public function fillEntityArrow(EntityArrow $arrow){
+
+        $prototypes = $arrow->getPrototype();
+
+        if($prototypes){
+
+            foreach ($prototypes->getIterator() as $key => $value) {
+                
+                if($storage instanceof self){
+
+                    return $storage->getStorageByEntityArrow($value,$auto);
+
+                }
+
+            }
+
+        }
+
+    }
+
     public function getStorageByEntityArrow(EntityArrow $arrow,$auto = false){
 
         if(isset($this[$arrow->getId()])){
@@ -94,10 +121,12 @@ class SimpleStorage extends ArrayObject implements StorageInterface{
             $storage = $this[$arrow->getId()];
 
         }else if($auto){
+
             $storage = new SimpleStorage();
             $this[$arrow->getId()] = $storage;
+
         }else{
-            throw new \Exception("Error Processing Request", 1);
+            throw new \Exception("Error".$arrow->getId(), 1);
         }
 
         $prototypes = $arrow->getPrototype();
@@ -124,10 +153,7 @@ class SimpleStorage extends ArrayObject implements StorageInterface{
 
         $storage = $this->getStorageByEntityArrow($arrow,true);
 
-        $storage->setValue(Dynamic::fromArray($data));
-
-        //var_dump($arrow,$data);
-
+        return $storage->setValue(Dynamic::fromArray($data));
     }
 
 
@@ -154,6 +180,30 @@ class SimpleStorage extends ArrayObject implements StorageInterface{
     public function setValue($value)
     {
         $this->value = $value;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of entityArrows
+     *
+     * @return  EntityArrowStorage
+     */ 
+    public function getEntityArrows()
+    {
+        return $this->entityArrows;
+    }
+
+    /**
+     * Set the value of entityArrows
+     *
+     * @param  EntityArrowStorage  $entityArrows
+     *
+     * @return  self
+     */ 
+    public function setEntityArrows(EntityArrowStorage $entityArrows)
+    {
+        $this->entityArrows = $entityArrows;
 
         return $this;
     }

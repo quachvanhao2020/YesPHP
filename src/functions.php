@@ -1,5 +1,45 @@
 <?php
 
+use YesPHP\ArraySerializable;
+
+/**
+ * Class casting
+ *
+ * @param string|object $destination
+ * @param object $sourceObject
+ * @return object
+ */
+function cast($destination, $sourceObject,$recursive = false)
+{
+    if (is_string($destination)) {
+        $destination = new $destination();
+    }
+    $sourceReflection = new ReflectionObject($sourceObject);
+    $destinationReflection = new ReflectionObject($destination);
+    $sourceProperties = $sourceReflection->getProperties();
+    foreach ($sourceProperties as $sourceProperty) {
+
+        $sourceProperty->setAccessible(true);
+        $name = $sourceProperty->getName();
+
+        $value = $sourceProperty->getValue($sourceObject);
+
+        if($recursive && is_object($value)){
+            //var_dump($value);
+            $value = cast($destination,$value,$recursive);
+        } 
+
+        if ($destinationReflection->hasProperty($name)) {
+            $propDest = $destinationReflection->getProperty($name);
+            $propDest->setAccessible(true);
+            $propDest->setValue($destination,$value);
+        } else {
+            $destination->$name = $value;
+        }
+    }
+    return $destination;
+}
+
 function array_to_xml($array, &$xml) { 
     
     if($xml instanceof SimpleXMLElement){
@@ -164,30 +204,37 @@ function compress_htmlcode($codedata)
     $codedata = preg_replace($searchdata, $replacedata, $codedata);
     return $codedata;
 }
+function objectToArray($ob,$recursive = false) {
 
-function objectToArray($d) {
-    if (is_object($d)) {
+    if($ob instanceof ArraySerializable){
 
-        $d = get_object_vars($d);
+        $ob = $ob->toArray();
+
+        if($recursive){
+            foreach ($ob as $key => $value) {
+                $ob[$key] = objectToArray($value,$recursive);
+            }
+        }
+
+        return $ob;
+
     }
 
-    if (is_array($d)) {
-
-        return array_map(__FUNCTION__, $d);
+    if (is_object($ob)) {
+        $ob = get_object_vars($ob);
+    }
+    if (is_array($ob)) {
+        return array_map(__FUNCTION__, $ob);
     }
     else {
-
-        return $d;
+        return $ob;
     }
 }
-
 function arrayToObject($d) {
     if (is_array($d)) {
-
         return (object) array_map(__FUNCTION__, $d);
     }
     else {
-
         return $d;
     }
 }

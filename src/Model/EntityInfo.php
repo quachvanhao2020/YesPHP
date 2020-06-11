@@ -1,9 +1,7 @@
 <?php
 namespace YesPHP\Model;
 
-use JsonSerializable;
-
-class EntityInfo implements JsonSerializable{
+class EntityInfo extends Entity{
 
     const _CLASS = "class";
         /**
@@ -13,10 +11,10 @@ class EntityInfo implements JsonSerializable{
      */
     protected $class;
 
-    public function jsonSerialize() {
-        return [
+    public function toArray() {
+        return array_merge([
             self::_CLASS => $this->getClass(),
-        ];
+        ],parent::toArray());
     }
 
         /**
@@ -54,7 +52,7 @@ class EntityInfo implements JsonSerializable{
      *
      * @return  self
      */ 
-    public function setClass(string $class)
+    public function setClass(string $class = null)
     {
         $this->class = $class;
 

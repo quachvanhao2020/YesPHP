@@ -1,6 +1,7 @@
 <?php
 namespace YesPHP\Model;
 use YesPHP\Model\Storage\EntityStorage;
+use YesPHP\Model\Entity;
 
 class EntityNormal extends Entity{
 
@@ -13,11 +14,7 @@ class EntityNormal extends Entity{
             self::CHILDS => $this->getChilds(),
             self::PARENT => $this->getParent(),
             self::REF => $this->getRef(),
-        ],[]);
-    }
-
-    public function jsonSerialize() {
-        return $this->toArray();
+        ],parent::toArray());
     }
 
     public static function propertySpecificity(){
@@ -56,15 +53,13 @@ class EntityNormal extends Entity{
     /**
      * Set the value of parent
      *
-     * @param  Entity  $parent
+     * @param  \YesPHP\Model\Entity  $parent
      *
      * @return  self
      */ 
-    public function setParent(Entity $parent)
+    public function setParent(\YesPHP\Model\Entity $parent = null)
     {
-        
         $this->parent = $parent;
-
         return $this;
     }
 
@@ -112,7 +107,7 @@ class EntityNormal extends Entity{
      *
      * @return  self
      */ 
-    public function setRef(string $ref)
+    public function setRef(string $ref = null)
     {
         $this->ref = $ref;
 

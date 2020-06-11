@@ -1,6 +1,7 @@
 <?php
 namespace YesPHP;
 use stdClass;
+use YesPHP\Model\Entity;
 
 class Dynamic extends stdClass
 {
@@ -34,6 +35,14 @@ class Dynamic extends stdClass
             return self::toArrayStatic((array)$array);
         }
         return $array;
+    }
+
+    public static function fromEntity(Entity $entity) {
+
+        $array = object2array($entity);
+
+        return self::fromArray($array);
+
     }
 
     public static function fromArray($array) {
