@@ -3,8 +3,22 @@ namespace YesPHP;
 
 use JsonSerializable;
 use Laminas\Stdlib\ArrayObject as StdlibArrayObject;
+use YesPHP\Model\Entity;
 
-class ArrayObject extends StdlibArrayObject implements JsonSerializable {
+class ArrayObject extends StdlibArrayObject implements JsonSerializable,DynamicSerializable{
+
+    const STORAGE = "storage";
+
+    public function toDynamic(Dynamic $dynamic = null){
+        $dynamic = $dynamic ?: new Dynamic;
+        $dynamic->{self::STORAGE} = $this->getStorage();
+        return $dynamic;
+    }
+
+    public function dynamicTo(Dynamic $dynamic){
+        $self = new static;
+        return $self;
+    }
 
     /**
      * @var array
@@ -13,6 +27,48 @@ class ArrayObject extends StdlibArrayObject implements JsonSerializable {
 
     public function jsonSerialize() {
         return $this->getStorage();
+    }
+
+            /**
+     * Appends the value
+     *
+     * @param Entity $entity
+     * @return bool
+     */
+    public function existEntity(Entity $entity)
+    {
+        $bool = isset($this[$entity->getId()]);
+        return $bool;
+    }
+
+                /**
+     * Appends the value
+     *
+     * @param Entity $entity
+     * @return Entity
+     */
+    public function getEntity($entity)
+    {
+
+        if(is_string($entity)){
+            $entity = new Entity($entity);
+        }
+        if($entity instanceof Entity && $this->existEntity($entity)){
+
+            $entity = $this[$entity->getId()];
+            return $entity;
+        };
+    }
+
+    /**
+     * Appends the value
+     *
+     * @param  Entity $entity
+     * @return void
+     */
+    public function appendEntity(Entity $entity)
+    {
+        $this->storage[$entity->getId()] = $entity;
     }
 
     /**

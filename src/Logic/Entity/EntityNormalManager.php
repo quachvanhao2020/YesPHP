@@ -17,11 +17,11 @@ class EntityNormalManager extends EntityManager{
         /**
      * 
      * @param string $arrow
-     * @param EntityNormal $item
+     * 
      * @return bool
      */ 
-    public function setItem(EntityArrow $arrow,$item){
-        return parent::setItem($arrow,$item);
+    public function setItem(EntityArrow $arrow){
+        return parent::setItem($arrow);
     }
 
     public function getTypeProduct(){

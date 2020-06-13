@@ -14,10 +14,10 @@ interface ManagerEntityInterface{
         /**
      * 
      * @param EntityArrow $arrow
-     * @param mixed $data
+     * 
      * @return mixed
      */
-    public function setItem(EntityArrow $arrow,$data);
+    public function setItem(EntityArrow $arrow);
 
     /**
      * 

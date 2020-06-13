@@ -7,7 +7,6 @@ use YesPHP\Model\EntityArrow;
 interface StorageInterface 
 //extends StorageStorageInterface
 {
-
         /**
      * Get an item.
      *
@@ -19,10 +18,10 @@ interface StorageInterface
      */
     public function getItemByArrow(EntityArrow $arrow);
 
-            /**
+        /**
      * Get an item.
      *
      */
-    public function setItemByArrow(EntityArrow $arrow,$data = null);
+    public function setItemByArrow(EntityArrow $arrow);
 
 }

@@ -5,6 +5,41 @@ use YesPHP\Model\Entity;
 
 class Dynamic extends stdClass
 {
+
+    public static function dynamicElementS(Dynamic $dynamic,$recursive = false){
+
+        $a = function($value,$recursive){
+
+            if($value instanceof DynamicSerializable){
+                $value = $value->toDynamic();
+                if($recursive) $value = $value->dynamicElement($recursive);
+            }
+
+            return $value;
+        };
+
+        foreach ($dynamic as $key => $value) {
+
+            if(is_array($value)){
+                foreach ($value as $key1 => $value1) {
+                    $value[$key1] = $a($value1,$recursive);
+                }
+            }else{
+                $value = $a($value,$recursive);
+            };
+
+            $dynamic->$key = $value;
+
+        }
+
+        return $dynamic;
+
+    }
+
+    public function dynamicElement($recursive = false){
+        return self::dynamicElementS($this,$recursive);
+    }
+
     public function __call($key, $params)
     {
         if ( ! isset($this->{$key})) {
@@ -15,7 +50,6 @@ class Dynamic extends stdClass
     }
 
     public function toArray(){
-
         return self::toArrayStatic($this);
     }
 

@@ -15,7 +15,7 @@ use YesPHP\Dynamic;
 use YesPHP\Model\EntityArrow;
 use YesPHP\Model\EntityNormal;
 
-class EntityManager implements //ManagerEntityInterface,
+class EntityManager implements ManagerEntityInterface,
 ListenerAggregateInterface {
 
     use EventManagerTrait;
@@ -91,6 +91,10 @@ ListenerAggregateInterface {
 
         $data = $this->getStorage()->getItemByArrow($arrow);
 
+        var_dump($data->toDynamic());
+
+        return;
+
         $type = $this->getTypeProduct();
 
         $instance = new $type();
@@ -151,11 +155,9 @@ ListenerAggregateInterface {
      * @param Entity $item
      * @return bool
      */ 
-    public function setItem(EntityArrow $arrow,$item){
+    public function setItem(EntityArrow $arrow){
 
-        $item = Dynamic::fromEntity($item);
-
-        if($this->getStorage()->setItemByArrow($arrow,$item)){
+        if($this->getStorage()->setItemByArrow($arrow)){
     
             return true;
 

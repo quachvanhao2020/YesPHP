@@ -1,16 +1,25 @@
 <?php
 namespace YesPHP\Model;
-use YesPHP\Model\EntityInfo;
+
 use JsonSerializable;
 use YesPHP\ArraySerializable;
+use YesPHP\AwareMergeInterface;
 use YesPHP\Dynamic;
 use YesPHP\DynamicSerializable;
 
-class Entity implements JsonSerializable,ArraySerializable,DynamicSerializable 
+class Entity implements JsonSerializable,ArraySerializable,DynamicSerializable,AwareMergeInterface 
 {
     
     const ID = "id";
     const INFO = "info";
+
+    public function merge(AwareMergeInterface $entity){
+        if($entity instanceof self){
+            $this->setId($entity->getId());
+            $this->setInfo($entity->getInfo());
+        }
+        return $this;
+    }
 
     public function toArray(){
         return array_merge([
@@ -26,10 +35,11 @@ class Entity implements JsonSerializable,ArraySerializable,DynamicSerializable
         return $self;
     }
 
-    public function toDynamic(){
-        $dynamic = new Dynamic;
-        $dynamic->id = $this->getId();
-        $dynamic->info = $this->getInfo();
+    public function toDynamic(Dynamic $dynamic = null){
+        $dynamic = $dynamic ?: new Dynamic;
+        $dynamic->{self::ID} = $this->getId();
+        $dynamic->{self::INFO} = $this->getInfo();
+        return $dynamic;
     }
 
     public function dynamicTo(Dynamic $dynamic){

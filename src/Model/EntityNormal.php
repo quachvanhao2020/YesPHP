@@ -2,12 +2,22 @@
 namespace YesPHP\Model;
 use YesPHP\Model\Storage\EntityStorage;
 use YesPHP\Model\Entity;
+use YesPHP\Dynamic;
 
 class EntityNormal extends Entity{
 
     const PARENT = "parent";
     const CHILDS = "childs";
     const REF = "ref";
+
+    public function toDynamic(Dynamic $dynamic = null){
+        $dynamic = $dynamic ?: new Dynamic;
+        $dynamic->{self::PARENT} = $this->getParent();
+        $dynamic->{self::CHILDS} = $this->getChilds();
+        $dynamic->{self::REF} = $this->getRef();
+
+        return parent::toDynamic($dynamic);
+    }
 
     public function toArray(){
         return array_merge([

@@ -1,11 +1,37 @@
 <?php
 namespace YesPHP\Model;
 use YesPHP\Model\Storage\EntityArrowStorage;
+use YesPHP\AwareMergeInterface;
+use YesPHP\Dynamic;
 
 class EntityArrow extends Entity{
 
     const PROTOTYPE = "prototype";
     const VALUE = "value";
+
+    public function toDynamic(Dynamic $dynamic = null){
+
+        $value = $this->getValue();
+
+        if($value instanceof Entity){
+
+            $dynamic = $value->toDynamic();
+
+            var_dump($dynamic->dynamicElement());
+
+            var_dump($dynamic);
+        }
+        
+        return $dynamic;
+    }
+
+    public function merge(AwareMergeInterface $entity){
+        if($entity instanceof self){
+            $this->setPrototype($entity->getPrototype());
+            $entity->getValue() && $this->setValue($entity->getValue());
+        }
+        return parent::merge($entity);
+    }
 
     public static function propertySpecificity(){
 

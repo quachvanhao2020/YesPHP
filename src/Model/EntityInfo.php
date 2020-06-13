@@ -1,5 +1,6 @@
 <?php
 namespace YesPHP\Model;
+use YesPHP\Dynamic;
 
 class EntityInfo extends Entity{
 
@@ -10,6 +11,12 @@ class EntityInfo extends Entity{
      * @var string
      */
     protected $class;
+
+    public function toDynamic(Dynamic $dynamic = null){
+        $dynamic = $dynamic ?: new Dynamic;
+        $dynamic->{self::_CLASS} = $this->getClass();
+        return parent::toDynamic($dynamic);
+    }
 
     public function toArray() {
         return array_merge([

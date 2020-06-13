@@ -7,7 +7,7 @@ interface DynamicSerializable{
     /**
      * @return  Dynamic
      */
-    public function toDynamic();
+    public function toDynamic(Dynamic $dynamic = null);
 
     /**
      * 

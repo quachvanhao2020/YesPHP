@@ -5,19 +5,22 @@ use YesPHP\ArrayObject;
 use YesPHP\Model\EntityArrow;
 use YesPHP\Cache\Iterator\SimpleStorageIterator;
 use YesPHP\Dynamic;
+use YesPHP\Model\Entity;
 use YesPHP\Model\Storage\EntityArrowStorage;
 
 class SimpleStorage extends ArrayObject implements StorageInterface{
-
-            /**
-     * @var mixed
-     */
-    protected $value;
 
     /**
      * @var EntityArrowStorage
      */
     protected $entityArrows;
+
+    public function __construct($input = [], $flags = self::STD_PROP_LIST, $iteratorClass = 'ArrayIterator')
+    {
+
+        $this->setEntityArrows(new EntityArrowStorage());
+        return parent::__construct($input,$flags,$iteratorClass);   
+    }
 
             /**
      * Create a new iterator from an ArrayObject instance
@@ -60,37 +63,18 @@ class SimpleStorage extends ArrayObject implements StorageInterface{
 
     }
 
-    public function dynamicCollect(EntityArrow $arrow){
-
-        $root = $this->getValue();
-
-        $arrow->getId();
-
-    }
-
     /**
      * Get an item.
      *
      */
     public function getItemByArrow(EntityArrow $arrow){
 
-        $storage = $this->getStorageByEntityArrow($arrow);
+        $entityArrows = $this->getEntityArrows();
 
-        return $storage->toDynamic();
+        if($arrow2 = $entityArrows->getEntity($arrow)){
 
-    }
-
-    public function toDynamic(){
-
-        $root = $this->getValue();
-
-        foreach ($this->getIterator() as $key => $value) {
-            
-            $root->{$key} = $value->toDynamic();
-
+            return $arrow2;
         }
-
-        return $root;
 
     }
 
@@ -149,39 +133,18 @@ class SimpleStorage extends ArrayObject implements StorageInterface{
         
     }
 
-    public function setItemByArrow(EntityArrow $arrow,$data = null){
+    public function setItemByArrow(EntityArrow $arrow){
 
-        $storage = $this->getStorageByEntityArrow($arrow,true);
+        $entityArrows = $this->getEntityArrows();
 
-        return $storage->setValue(Dynamic::fromArray($data));
-    }
+        if($arrow2 = $entityArrows->getEntity($arrow)){
 
+            if($arrow2 instanceof Entity){
 
+                return $arrow2->merge($arrow);
+            }
 
-    /**
-     * Get the value of value
-     *
-     * @return  mixed
-     */ 
-    public function getValue()
-    {
-        if(!$this->value) $this->setValue(new Dynamic);
-
-        return $this->value;
-    }
-
-    /**
-     * Set the value of value
-     *
-     * @param  mixed  $value
-     *
-     * @return  self
-     */ 
-    public function setValue($value)
-    {
-        $this->value = $value;
-
-        return $this;
+        }else return $entityArrows->appendEntity($arrow);
     }
 
     /**
